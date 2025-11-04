@@ -17,24 +17,40 @@ db = SQLAlchemy(app)
 # DATABASE MODELS
 # ==========================
 
+
 class Bands(db.Model):
     BandID = db.Column(db.Integer, primary_key=True)
     BandName = db.Column(db.String(80), nullable=False)
     FormedYear = db.Column(db.Integer)
     HomeLocation = db.Column(db.String(80))
     # Relationship: One band has many members + albums
-    members = db.relationship('Members', backref='band', lazy=True)
+    # members = db.relationship('Members', backref='band', lazy=True)
+    memberships = db.relationship('Memberships', backref='band', lazy=True)
     albums = db.relationship('Albums', backref='band', lazy=True)
+
 
 class Members(db.Model):
     MemberID = db.Column(db.Integer, primary_key=True)
-    BandID = db.Column(db.Integer, db.ForeignKey('bands.BandID'), nullable=False)
+    # BandID = db.Column(db.Integer, db.ForeignKey('bands.BandID'), nullable=False)
     MemberName = db.Column(db.String(80), nullable=False)
     MainPosition = db.Column(db.String(80))
+    memberships = db.relationship('Memberships', backref='member', lazy=True)
+
+
+class Memberships(db.Model):
+    MembershipID = db.Column(db.Integer, primary_key=True)
+    BandID = db.Column(db.Integer, db.ForeignKey(
+        'bands.BandID'), nullable=False)
+    MemberId = db.Column(db.Integer, db.ForeignKey(
+        'members.MemberID'), nullable=False)
+    StartYear = db.Column(db.Integer)
+    EndYear = db.Column(db.Integer)  # NULL if still active
+
 
 class Albums(db.Model):
     AlbumID = db.Column(db.Integer, primary_key=True)
-    BandID = db.Column(db.Integer, db.ForeignKey('bands.BandID'), nullable=False)
+    BandID = db.Column(db.Integer, db.ForeignKey(
+        'bands.BandID'), nullable=False)
     AlbumTitle = db.Column(db.String(80), nullable=False)
     ReleaseYear = db.Column(db.Integer)
 
@@ -42,9 +58,11 @@ class Albums(db.Model):
 # ROUTES
 # ==========================
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/bands/add', methods=['GET', 'POST'])
 def add_band():
@@ -58,6 +76,7 @@ def add_band():
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('add_band.html')
+
 
 @app.route('/members/add', methods=['GET', 'POST'])
 def add_member():
@@ -73,6 +92,7 @@ def add_member():
         return redirect(url_for('index'))
     return render_template('add_member.html', bands=bands)
 
+
 @app.route('/albums/add', methods=['GET', 'POST'])
 def add_album():
     bands = Bands.query.all()
@@ -87,16 +107,19 @@ def add_album():
         return redirect(url_for('index'))
     return render_template('add_album.html', bands=bands)
 
+
 @app.route('/bands/view')
 def view_by_band():
     bands = Bands.query.all()
     return render_template('display_by_band.html', bands=bands)
+
 
 @app.route('/bands/view/<int:id>')
 def view_band(id):
     # Shows real database relationship querying
     band = Bands.query.get_or_404(id)
     return render_template('display_by_band.html', bands=[band])
+
 
 # Create DB if not exists
 with app.app_context():
