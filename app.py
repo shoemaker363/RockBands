@@ -8,9 +8,13 @@ load_dotenv()  # Reads from .env file
 app = Flask(__name__)
 
 # Using SQLite for student simplicity
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///rockbands.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///rockbands-mm.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+<<<<<<< HEAD
 app.config['SECRET_KEY'] =os.getenv('SECRET_KEY') or 'SECRET'
+=======
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'SECRET'
+>>>>>>> ee180306b6319ac6da219f8a7974bce52a986fd1
 
 db = SQLAlchemy(app)
 
@@ -18,21 +22,29 @@ db = SQLAlchemy(app)
 # DATABASE MODELS
 # ==========================
 
+
 class Bands(db.Model):
     BandID = db.Column(db.Integer, primary_key=True)
     BandName = db.Column(db.String(80), nullable=False)
     FormedYear = db.Column(db.Integer)
     HomeLocation = db.Column(db.String(80))
     # Relationship: One band has many members + albums
-    members = db.relationship('Members', backref='band', lazy=True)
+    # members = db.relationship('Members', backref='band', lazy=True)
+    memberships = db.relationship('Memberships', backref='band', lazy=True)
     albums = db.relationship('Albums', backref='band', lazy=True)
+
 
 class Members(db.Model):
     MemberID = db.Column(db.Integer, primary_key=True)
+<<<<<<< HEAD
+=======
+    # BandID = db.Column(db.Integer, db.ForeignKey('bands.BandID'), nullable=False)
+>>>>>>> ee180306b6319ac6da219f8a7974bce52a986fd1
     MemberName = db.Column(db.String(80), nullable=False)
     MainPosition = db.Column(db.String(80))
     memberships = db.relationship('Memberships', backref='member', lazy=True)
 
+<<<<<<< HEAD
 class Memberships(db.Model):
     MembershipID = db.Column(db.Integer, primary_key=True)
     BandID = db.Column(db.Integer, db.ForeignKey('bands.BandID'), nullable=False)
@@ -40,10 +52,24 @@ class Memberships(db.Model):
     role = db.Column(db.String(80))
     StartYear = db.Column(db.Integer)
     EndYear = db.Column(db.Integer)
+=======
+
+class Memberships(db.Model):
+    MembershipID = db.Column(db.Integer, primary_key=True)
+    BandID = db.Column(db.Integer, db.ForeignKey(
+        'bands.BandID'), nullable=False)
+    MemberID = db.Column(db.Integer, db.ForeignKey(
+        'members.MemberID'), nullable=False)
+    StartYear = db.Column(db.Integer)
+    EndYear = db.Column(db.Integer)  # NULL if still active
+    Role = db.Column(db.Text)
+
+>>>>>>> ee180306b6319ac6da219f8a7974bce52a986fd1
 
 class Albums(db.Model):
     AlbumID = db.Column(db.Integer, primary_key=True)
-    BandID = db.Column(db.Integer, db.ForeignKey('bands.BandID'), nullable=False)
+    BandID = db.Column(db.Integer, db.ForeignKey(
+        'bands.BandID'), nullable=False)
     AlbumTitle = db.Column(db.String(80), nullable=False)
     ReleaseYear = db.Column(db.Integer)
 
@@ -51,9 +77,11 @@ class Albums(db.Model):
 # ROUTES
 # ==========================
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/bands/add', methods=['GET', 'POST'])
 def add_band():
@@ -68,19 +96,21 @@ def add_band():
         return redirect(url_for('index'))
     return render_template('add_band.html')
 
+
 @app.route('/members/add', methods=['GET', 'POST'])
 def add_member():
     bands = Bands.query.all()  # Students see querying with relationships
     if request.method == 'POST':
         new_member = Members(
             MemberName=request.form['membername'],
-            MainPosition=request.form['mainposition'],
-            BandID=request.form['bandid']
+            MainPosition=request.form['mainposition']
+            # BandID=request.form['bandid']
         )
         db.session.add(new_member)
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('add_member.html', bands=bands)
+
 
 @app.route('/albums/add', methods=['GET', 'POST'])
 def add_album():
@@ -96,10 +126,12 @@ def add_album():
         return redirect(url_for('index'))
     return render_template('add_album.html', bands=bands)
 
+
 @app.route('/bands/view')
 def view_by_band():
     bands = Bands.query.all()
     return render_template('display_by_band.html', bands=bands)
+
 
 @app.route('/bands/view/<int:id>')
 def view_band(id):
@@ -107,6 +139,10 @@ def view_band(id):
     band = Bands.query.get_or_404(id)
     return render_template('display_by_band.html', bands=[band])
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> ee180306b6319ac6da219f8a7974bce52a986fd1
 @app.route('/memberships/add', methods=['GET', 'POST'])
 def add_membership():
     bands = Bands.query.all()
@@ -125,6 +161,11 @@ def add_membership():
         return redirect(url_for('view_by_band'))
     return render_template('add_membership.html', bands=bands, members=members)
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> ee180306b6319ac6da219f8a7974bce52a986fd1
 @app.route('/memberships/edit/<int:id>', methods=['GET', 'POST'])
 def edit_membership(id):
     membership = Memberships.query.get_or_404(id)
@@ -137,10 +178,19 @@ def edit_membership(id):
         membership.StartYear = request.form.get('startyear') or None
         membership.EndYear = request.form.get('endyear') or None
         db.session.commit()
+<<<<<<< HEAD
         flash('Membership updated', 'success')
         return redirect(url_for('view_by_band'))
     return render_template('edit_membership.html', membership=membership, bands=bands, members=members)
 
+=======
+        flash('Membership updates', 'success')
+        return redirect(url_for('view_by_band'))
+
+    return render_template('edit_membership.html', membership=membership, bands=bands, members=members)
+
+
+>>>>>>> ee180306b6319ac6da219f8a7974bce52a986fd1
 @app.route('/memberships/delete/<int:id>')
 def delete_membership(id):
     membership = Memberships.query.get_or_404(id)
