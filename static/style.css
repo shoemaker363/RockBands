@@ -1,4 +1,4 @@
-body { font-family: Arial, sans-serif; margin: 20px; }
+body {background: #16ACDE; background: linear-gradient(54deg,rgba(22, 172, 222, 1) 0%, rgba(173, 105, 10, 1) 100%); font-family: Arial, sans-serif; margin: 20px; }
 header { margin-bottom: 20px; }
 label { width: 120px; display: inline-block; }
 button { margin-top: 10px; }

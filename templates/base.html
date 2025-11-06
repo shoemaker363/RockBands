@@ -10,17 +10,6 @@
   </head>
   <body>
     <header>
-<<<<<<< HEAD
-        <h1>Collection of Great Rock Bands</h1>
-        <nav>
-            <a href="{{ url_for('index') }}">Home</a> |
-            <a href="{{ url_for('add_band') }}">Add Band</a> |
-            <a href="{{ url_for('add_member') }}">Add Member</a> |
-            <a href="{{ url_for('add_album') }}">Add Album</a> |
-            <a href="{{ url_for('add_membership') }}">Add Membership</a> |
-            <a href="{{ url_for('view_by_band') }}">View Band Info</a>
-        </nav>
-=======
       <h1>Collection of Great Rock Bands</h1>
       <nav>
         <a href="{{ url_for('index') }}">Home</a> |
@@ -30,7 +19,6 @@
         <a href="{{ url_for('add_membership') }}">Add Membership</a> |
         <a href="{{ url_for('view_by_band') }}">View Band Info</a>
       </nav>
->>>>>>> ee180306b6319ac6da219f8a7974bce52a986fd1
     </header>
     <main>
       {% with messages = get_flashed_messages(with_categories=true) %} {% if
