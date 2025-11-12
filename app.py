@@ -14,6 +14,11 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'SECRET'
 
 db = SQLAlchemy(app)
 
+album_contributors = db.Table('album_contributors',
+    db.Column('album_id', db.Integer, db.ForeignKey('albums.AlbumID'), primary_key=True),
+    db.Column('band_id', db.Integer, db.ForeignKey('bands.BandID'), primary_key=True)
+)
+
 # ==========================
 # DATABASE MODELS
 # ==========================
@@ -27,7 +32,7 @@ class Bands(db.Model):
     # Relationship: One band has many members + albums
     # members = db.relationship('Members', backref='band', lazy=True)
     memberships = db.relationship('Memberships', backref='band', lazy=True)
-    albums = db.relationship('Albums', backref='band', lazy=True)
+    albums = db.relationship('Albums', backref='primary_band', lazy=True, foreign_keys='Albums.BandID')
 
 
 class Members(db.Model):
@@ -55,6 +60,9 @@ class Albums(db.Model):
         'bands.BandID'), nullable=False)
     AlbumTitle = db.Column(db.String(80), nullable=False)
     ReleaseYear = db.Column(db.Integer)
+    contributing_bands = db.relationship('Bands', secondary=album_contributors, backref=db.backref('contributed_albums', lazy='dynamic'))
+                                        
+                                        
 
 
 # ==========================
@@ -103,8 +111,7 @@ def add_album():
         album_title = request.form.get('albumtitle')
         release_year = request.form.get('releaseyear')
         band_id = request.form.get('bandid')
-        checkboxContainer = request.form.getlist('checkboxContainers')
-        
+        contributing_band_ids = request.form.getlist("checkboxContainer")        
 
         if not album_title or not band_id:
             return "Please Enter a album title and/or choose a band.", 400
@@ -114,9 +121,12 @@ def add_album():
         new_album = Albums(
             BandID=int(band_id),
             AlbumTitle=album_title,
-            ReleaseYear=release_year_int,
-            
+            ReleaseYear=release_year_int,          
         )
+        for band_id_str in contributing_band_ids:
+            contributing_band = Bands.query.get(int(band_id_str))
+            if contributing_band:
+                new_album.contributing_bands.append(contributing_band)
         
         db.session.add(new_album)
         db.session.commit()

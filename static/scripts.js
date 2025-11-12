@@ -115,3 +115,5 @@ document.addEventListener('DOMContentLoaded', function() {
             checkboxContainer.innerHTML = '<p style="color: #d32f2f;">Error loading bands. Please refresh the page.</p>';
         });
 });
+
+

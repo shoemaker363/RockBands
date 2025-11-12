@@ -21,9 +21,10 @@
             {% for band in bands %}
             <div class="checkboxContainer">
                 <input id="band_{{ band.BandID }}" type="checkbox" name="checkboxContainer" value="{{ band.BandID }}">
-                <label for="band_{{band.BandName}}">{{ band.BandName }}</label>            
+                <label for="band_{{ band.BandName }}">{{ band.BandName }}</label>            
                 <div class="tick_mark"></div>
-                    
+                
+            {% if is_checked %} checked {% endif %}        
             </div>      
             {% endfor %}
         {% else %}
